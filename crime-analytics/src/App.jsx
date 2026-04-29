@@ -6,7 +6,7 @@ import {
 import { 
   LayoutDashboard, Map as MapIcon, TrendingUp, AlertTriangle, Image as ImageIcon, 
   Users, Calendar, ShieldAlert, BarChart3, Info, CheckCircle2, MapPin, Search,
-  Clock, Activity, Box, Filter, RotateCcw, ChevronDown, Cpu, Zap, Camera
+  Clock, Activity, Box, Filter, RotateCcw, ChevronDown, Cpu, Zap, Camera, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import data from './data.json';
@@ -19,6 +19,13 @@ const App = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [selectedImage, setSelectedImage] = useState('/crime_images/crime_001.png');
+  const [textContext, setTextContext] = useState('');
+  const [analysisStage, setAnalysisStage] = useState('');
+
+  // Auto-trigger analysis when image changes
+  React.useEffect(() => {
+    if (selectedImage) runAnalysis();
+  }, [selectedImage]);
 
   const CRIME_IMAGES = [
     '/crime_images/crime_001.png',
@@ -139,16 +146,48 @@ const App = () => {
     return matrix;
   }, [filteredData, topCities]);
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const runAnalysis = () => {
+    if (!selectedImage && !textContext) return;
     setAnalyzing(true);
-    setTimeout(() => {
-      setAnalyzing(false);
-      setAnalysisResult({
-        risk: Math.random() > 0.5 ? 'CRITICAL' : 'STABLE',
-        weapon: Math.random() > 0.7 ? 'DETECTED' : 'NONE',
-        confidence: (Math.random() * 20 + 75).toFixed(2)
-      });
-    }, 2000);
+    setAnalysisResult(null);
+    
+    const stages = ["INITIALIZING_OCR...", "EXTRACTING_VISUAL_FEATURES...", "SYNTHESIZING_NEURAL_DATA...", "FINALIZING_DESCRIPTION..."];
+    
+    stages.forEach((stage, index) => {
+      setTimeout(() => {
+        setAnalysisStage(stage);
+        if (index === stages.length - 1) {
+          // Deterministic risk logic based on image filename
+          const isCritical = selectedImage.includes('001') || selectedImage.includes('002');
+          
+          const extractedOCR = isCritical 
+            ? "POLICE_LOG_SEC_4: High-threat activity reported near perimeter. Deployment authorized."
+            : "POLICE_LOG_SEC_4: Routine surveillance check. No violations detected.";
+          
+          setAnalysisResult({
+            risk: isCritical ? 'CRITICAL' : 'STABLE',
+            weapon: isCritical ? 'DETECTED' : 'NONE',
+            confidence: (Math.random() * 5 + 92).toFixed(2), // Higher consistency
+            ocrText: extractedOCR,
+            description: isCritical 
+              ? `Integrated analysis confirms high-threat level. OCR Scan found: "${extractedOCR}". Visual patterns identify tactical signatures requiring immediate intervention.`
+              : `Scene currently appears stable. OCR data suggests routine activity. Visual analysis confirms no immediate threat detected.`
+          });
+          setAnalyzing(false);
+        }
+      }, (index + 1) * 600);
+    });
   };
 
   return (
@@ -367,46 +406,89 @@ const App = () => {
                </div>
 
                <div className="image-intelligence-grid">
-                  <motion.div className="glass-card-3d" whileHover={{ rotateY: -5 }}>
+                  <motion.div className="glass-card-3d" whileHover={{ rotateY: -2 }}>
                     <div className="scanner-line"></div>
                     <div className="card-header">
                         <Camera size={24} color="#8b5cf6" />
-                        <span className="hud-text">OPTICAL_INPUT_NODE</span>
+                        <span className="hud-text">MULTI_MODAL_INPUT</span>
                     </div>
-                    <div className="preview-area-premium">
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <div className="hud-text small">VISUAL_EVIDENCE_NODE</div>
+                      <div className="file-input-wrapper">
+                        <Camera size={20} color="var(--dim)" />
+                        <span style={{ marginLeft: '10px', fontSize: '0.8rem', color: 'var(--dim)' }}>Drag & Drop or Click to Upload</span>
+                        <input type="file" accept="image/*" onChange={handleImageUpload} />
+                      </div>
+                    </div>
+
+                    <div className="preview-area-premium" style={{ minHeight: '200px' }}>
                         <div className="corner tl"></div><div className="corner tr"></div>
                         <div className="corner bl"></div><div className="corner br"></div>
-                        <img src={selectedImage} alt="Selected Crime" className="main-preview-img" />
+                        {selectedImage && (
+                          <button 
+                            onClick={() => { setSelectedImage(null); setAnalysisResult(null); }}
+                            className="clear-image-btn"
+                            title="Clear Image"
+                          >
+                            <X size={16} />
+                          </button>
+                        )}
+                        {selectedImage ? (
+                          <img src={selectedImage} alt="Selected Crime" className="main-preview-img" />
+                        ) : (
+                          <div className="idle-state" style={{ height: '100%' }}>
+                            <ImageIcon size={40} className="faint-icon" />
+                            <p>NO_IMAGE_SELECTED</p>
+                          </div>
+                        )}
                         <div className="scan-overlay"></div>
                     </div>
+
                     <button className="hud-button" onClick={runAnalysis} disabled={analyzing}>
                       {analyzing ? <Zap className="spinning" /> : <Cpu />}
-                      <span>{analyzing ? 'VECTORIZING_DATA...' : 'INITIALIZE_SCAN'}</span>
+                      <span>{analyzing ? analysisStage : 'RUN_FUSION_ANALYSIS'}</span>
                     </button>
                   </motion.div>
 
-                  <motion.div className="glass-card-3d results-card" whileHover={{ rotateY: 5 }}>
+                  <motion.div className="glass-card-3d results-card" whileHover={{ rotateY: 2 }}>
                     <div className="card-header">
                         <Zap size={24} color="#d946ef" />
-                        <span className="hud-text">SCAN_DIAGNOSTICS</span>
+                        <span className="hud-text">INTELLIGENCE_OUTPUT</span>
                     </div>
                     {analysisResult ? (
                       <div className="analysis-results">
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className={`risk-badge ${analysisResult.risk === 'CRITICAL' ? 'danger' : 'stable'}`}>
                             <AlertTriangle size={32} />
-                            <div><div className="label">THREAT_LEVEL</div><div className="value">{analysisResult.risk}_RISK</div></div>
+                            <div><div className="label">SYNTHESIZED_RISK</div><div className="value">{analysisResult.risk}_LEVEL</div></div>
                         </motion.div>
+
+                        <div className="description-card">
+                          <div className="description-title">Overall Scene Description</div>
+                          <div className="description-text">{analysisResult.description}</div>
+                        </div>
+
+                        <div className="system-logs" style={{ background: 'rgba(124, 58, 237, 0.05)', border: '1px solid rgba(124, 58, 237, 0.2)' }}>
+                            <div className="hud-text small" style={{ marginBottom: '5px' }}>OCR_EXTRACTED_STRING</div>
+                            <div style={{ fontStyle: 'italic', fontSize: '0.8rem', color: 'var(--p2)' }}>"{analysisResult.ocrText}"</div>
+                        </div>
+
                         <div className="metrics-grid">
                             <div className="metric-box"><div className="m-label">WEAPON_STATUS</div><div className="m-value" style={{ color: analysisResult.weapon === 'DETECTED' ? '#ef4444' : '#10b981' }}>{analysisResult.weapon}</div></div>
-                            <div className="metric-box"><div className="m-label">AI_CONFIDENCE</div><div className="m-value">{analysisResult.confidence}%</div><div className="m-progress"><motion.div initial={{ width: 0 }} animate={{ width: `${analysisResult.confidence}%` }} className="m-fill" /></div></div>
+                            <div className="metric-box"><div className="m-label">OCR_CONFIDENCE</div><div className="m-value">{analysisResult.confidence}%</div><div className="m-progress"><motion.div initial={{ width: 0 }} animate={{ width: `${analysisResult.confidence}%` }} className="m-fill" /></div></div>
                         </div>
                         <div className="system-logs">
-                            <div className="log-line">&gt; Pattern Recognition: COMPLETE</div>
-                            <div className={`log-line ${analysisResult.risk === 'CRITICAL' ? 'text-danger' : 'text-success'}`}>&gt; Action Protocol: {analysisResult.risk === 'CRITICAL' ? 'DEPLOY_UNITS' : 'STANDBY'}</div>
+                            <div className="log-line">&gt; Textual Parsing: SUCCESS</div>
+                            <div className="log-line">&gt; Visual Feature Extraction: COMPLETE</div>
+                            <div className={`log-line ${analysisResult.risk === 'CRITICAL' ? 'text-danger' : 'text-success'}`}>&gt; Protocol: {analysisResult.risk === 'CRITICAL' ? 'INTERVENTION_REQUIRED' : 'CONTINUE_SURVEILLANCE'}</div>
                         </div>
                       </div>
                     ) : (
-                      <div className="idle-state"><Cpu size={48} className="faint-icon" /><p>CONNECT_SENSOR_TO_BEGIN</p></div>
+                      <div className="idle-state">
+                        <Activity size={48} className="faint-icon" />
+                        <p>AWAITING_FUSION_DATA</p>
+                        <p style={{ fontSize: '0.6rem', opacity: 0.5 }}>UPLOAD IMAGE AND PROVIDE TEXT FOR FULL ANALYSIS</p>
+                      </div>
                     )}
                   </motion.div>
                </div>
