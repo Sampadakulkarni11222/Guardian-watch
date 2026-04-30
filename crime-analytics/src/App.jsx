@@ -11,6 +11,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import data from './data.json';
 import './App.css';
+import crime001 from './assets/crime_images/crime_001.png';
+import crime002 from './assets/crime_images/crime_002.png';
+import crime003 from './assets/crime_images/crime_003.png';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -18,7 +21,7 @@ const App = () => {
   const [selectedDomain, setSelectedDomain] = useState('All');
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
-  const [selectedImage, setSelectedImage] = useState('crime_images/crime_001.png');
+  const [selectedImage, setSelectedImage] = useState(crime001);
   const [textContext, setTextContext] = useState('');
   const [analysisStage, setAnalysisStage] = useState('');
 
@@ -28,9 +31,9 @@ const App = () => {
   }, [selectedImage]);
 
   const CRIME_IMAGES = [
-    'crime_images/crime_001.png',
-    'crime_images/crime_002.png',
-    'crime_images/crime_003.png'
+    crime001,
+    crime002,
+    crime003
   ];
 
   const COLORS = ['#8b5cf6', '#d946ef', '#ec4899', '#f59e0b', '#10b981', '#3b82f6'];
