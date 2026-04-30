@@ -1,0 +1,17 @@
+services:
+  # Streamlit Dashboard (Python Web Service)
+  - type: web
+    name: guardian-watch-dashboard
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run dashboard.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+
+  # React Frontend (Static Site)
+  - type: static
+    name: guardian-watch-frontend
+    env: node
+    buildCommand: cd crime-analytics && npm install && npm run build
+    publishPath: crime-analytics/dist
