@@ -13,7 +13,6 @@ services:
   # React Frontend (Static Site)
   - type: web
     name: guardian-watch-frontend
-    plan: free
     runtime: static
     buildCommand: cd crime-analytics && npm install && npm run build
     staticPublishPath: crime-analytics/dist
