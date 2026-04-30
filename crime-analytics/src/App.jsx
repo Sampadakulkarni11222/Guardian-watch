@@ -18,7 +18,7 @@ const App = () => {
   const [selectedDomain, setSelectedDomain] = useState('All');
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
-  const [selectedImage, setSelectedImage] = useState('/crime_images/crime_001.png');
+  const [selectedImage, setSelectedImage] = useState('crime_images/crime_001.png');
   const [textContext, setTextContext] = useState('');
   const [analysisStage, setAnalysisStage] = useState('');
 
@@ -28,9 +28,9 @@ const App = () => {
   }, [selectedImage]);
 
   const CRIME_IMAGES = [
-    '/crime_images/crime_001.png',
-    '/crime_images/crime_002.png',
-    '/crime_images/crime_003.png'
+    'crime_images/crime_001.png',
+    'crime_images/crime_002.png',
+    'crime_images/crime_003.png'
   ];
 
   const COLORS = ['#8b5cf6', '#d946ef', '#ec4899', '#f59e0b', '#10b981', '#3b82f6'];
