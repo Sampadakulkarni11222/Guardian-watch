@@ -10,7 +10,7 @@ services:
         value: 3.10.0
 
   # React Frontend (Static Site)
-  - type: static
+  - type: static_site
     name: guardian-watch-frontend
     env: node
     buildCommand: cd crime-analytics && npm install && npm run build
