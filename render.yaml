@@ -10,8 +10,8 @@ services:
         value: 3.10.0
 
   # React Frontend (Static Site)
-  - type: static_site
+  - type: web
     name: guardian-watch-frontend
-    env: node
+    runtime: static
     buildCommand: cd crime-analytics && npm install && npm run build
-    publishPath: crime-analytics/dist
+    staticPublishPath: crime-analytics/dist
