@@ -25,8 +25,8 @@ def process_data():
 
     # Export a larger sample for frontend filtering (Slicers)
 
-    # We take 5000 rows to keep it snappy but representative
-    sample_df = df.sample(min(5000, len(df)), random_state=42)
+    # Process all rows
+    sample_df = df
     incidents = []
     for _, row in sample_df.iterrows():
         incidents.append({

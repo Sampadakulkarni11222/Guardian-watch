@@ -24,6 +24,7 @@ const App = () => {
   const [selectedImage, setSelectedImage] = useState(crime001);
   const [textContext, setTextContext] = useState('');
   const [analysisStage, setAnalysisStage] = useState('');
+  const [hoveredCity, setHoveredCity] = useState(null);
 
   // Auto-trigger analysis when image changes
   React.useEffect(() => {
@@ -117,8 +118,8 @@ const App = () => {
       if (count > q3) color = '#ef4444'; // High (Red)
       else if (count > q1) color = '#f59e0b'; // Moderate (Orange)
       
-      const x = (lon - 68) * (800 / (97 - 68));
-      const y = 600 - (lat - 8) * (600 / (37 - 8));
+      const x = 155 + ((lon - 68) / 29) * 450;
+      const y = 595 - ((lat - 8) / 29) * 547;
       
       return { name, x, y, count, color };
     });
@@ -365,12 +366,21 @@ const App = () => {
                       strokeDasharray="4,4"
                     />
                     {mapMarkers.map((m, i) => (
-                      <motion.g key={`${m.name}`} initial={{ opacity: 0.8 }} animate={{ opacity: 1 }}>
-                        <circle cx={m.x} cy={m.y} r={Math.sqrt(m.count) * 2} fill={m.color} fillOpacity="0.15">
-                          <animate attributeName="r" values={`${Math.sqrt(m.count) * 1.5};${Math.sqrt(m.count) * 2.5};${Math.sqrt(m.count) * 1.5}`} dur="4s" repeatCount="indefinite" />
-                        </circle>
-                        <circle cx={m.x} cy={m.y} r="4" fill={m.color} className="pulse-dot" style={{ filter: `drop-shadow(0 0 8px ${m.color})` }} />
-                        <text x={m.x + 12} y={m.y + 4} fill="rgba(255,255,255,0.5)" fontSize="9" className="map-label">{m.name.toUpperCase()}</text>
+                      <motion.g 
+                        key={`${m.name}`} 
+                        initial={{ opacity: 0.8 }} 
+                        animate={{ opacity: 1 }}
+                        onMouseEnter={() => setHoveredCity(m.name)}
+                        onMouseLeave={() => setHoveredCity(null)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <circle cx={m.x} cy={m.y} r="5" fill={m.color} style={{ filter: `drop-shadow(0 0 5px ${m.color})` }} />
+                        {hoveredCity === m.name && (
+                          <g>
+                            <rect x={m.x + 8} y={m.y - 10} width={m.name.length * 6 + 16} height="20" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke={m.color} strokeWidth="1" />
+                            <text x={m.x + 16} y={m.y + 4} fill="#fff" fontSize="10" fontWeight="bold" fontFamily="JetBrains Mono, monospace" className="map-label">{m.name.toUpperCase()}</text>
+                          </g>
+                        )}
                       </motion.g>
                     ))}
                   </svg>

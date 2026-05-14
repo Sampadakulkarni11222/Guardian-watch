@@ -182,7 +182,7 @@ model = train_model(df)
 
 # --- SIDEBAR ---
 st.sidebar.title("🔍 Filters")
-selected_city = st.sidebar.multiselect("Select Cities", options=df['City'].unique(), default=df['City'].unique()[:5])
+selected_city = st.sidebar.multiselect("Select Cities", options=df['City'].unique(), default=df['City'].unique())
 selected_domain = st.sidebar.multiselect("Select Crime Domain", options=df['Crime Domain'].unique(), default=df['Crime Domain'].unique())
 
 filtered_df = df[df['City'].isin(selected_city) & df['Crime Domain'].isin(selected_domain)]
